@@ -89,6 +89,9 @@ class DashboardController extends GetxController {
       final targetDate = now.subtract(Duration(days: i));
       final dayLabel = dayNames[targetDate.weekday - 1];
 
+      final dateLabel =
+          '${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+
       final matchingSales = allSales.where(
         (s) =>
             s.date.year == targetDate.year &&
@@ -100,6 +103,8 @@ class DashboardController extends GetxController {
       result.add(
         DashboardDaySales(
           dayLabel: dayLabel,
+          dateLabel: dateLabel,
+          date: targetDate,
           amount: total,
           count: matchingSales.length,
         ),
