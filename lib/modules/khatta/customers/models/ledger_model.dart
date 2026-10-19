@@ -10,6 +10,9 @@ class LedgerTransaction {
   final double debit;
   final double credit;
   final double runningBalance;
+  final bool isReversed;
+  final String? reversedEntryId;
+  final String? voucherNumber;
 
   LedgerTransaction({
     required this.id,
@@ -21,7 +24,24 @@ class LedgerTransaction {
     required this.debit,
     required this.credit,
     required this.runningBalance,
+    this.isReversed = false,
+    this.reversedEntryId,
+    this.voucherNumber,
   });
+
+  /// Rule 4: Reversal is allowed ONLY for Payment, Opening Balance and Adjustment entries.
+  /// Sale/Purchase entries must show disabled reverse action.
+  bool get isCanBeReversed {
+    if (isReversed) return false;
+    final ref = referenceType.toLowerCase();
+    if (ref.startsWith('sale') ||
+        ref.contains('inv-') ||
+        ref.startsWith('purchase bill') ||
+        ref.contains('pur-')) {
+      return false;
+    }
+    return true;
+  }
 
   LedgerTransaction copyWith({
     String? id,
@@ -33,6 +53,9 @@ class LedgerTransaction {
     double? debit,
     double? credit,
     double? runningBalance,
+    bool? isReversed,
+    String? reversedEntryId,
+    String? voucherNumber,
   }) {
     return LedgerTransaction(
       id: id ?? this.id,
@@ -44,6 +67,9 @@ class LedgerTransaction {
       debit: debit ?? this.debit,
       credit: credit ?? this.credit,
       runningBalance: runningBalance ?? this.runningBalance,
+      isReversed: isReversed ?? this.isReversed,
+      reversedEntryId: reversedEntryId ?? this.reversedEntryId,
+      voucherNumber: voucherNumber ?? this.voucherNumber,
     );
   }
 }

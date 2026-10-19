@@ -7,6 +7,7 @@ class DesktopLayout extends StatelessWidget {
   final String currentRoute;
   final String title;
   final String? subtitle;
+  final Widget? titleSuffix;
   final List<Widget>? headerActions;
   final Widget child;
 
@@ -15,6 +16,7 @@ class DesktopLayout extends StatelessWidget {
     required this.currentRoute,
     required this.title,
     this.subtitle,
+    this.titleSuffix,
     this.headerActions,
     required this.child,
   });
@@ -37,6 +39,7 @@ class DesktopLayout extends StatelessWidget {
                 HeaderBar(
                   title: title,
                   subtitle: subtitle,
+                  titleSuffix: titleSuffix,
                   actions: headerActions,
                 ),
                 Expanded(child: child),
