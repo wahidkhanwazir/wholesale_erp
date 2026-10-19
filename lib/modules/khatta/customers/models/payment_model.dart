@@ -11,6 +11,7 @@ class PaymentModel {
   final PaymentMethod paymentMethod;
   final String? reference;
   final String? notes;
+  final bool isReversed;
 
   PaymentModel({
     required this.id,
@@ -23,6 +24,7 @@ class PaymentModel {
     required this.paymentMethod,
     this.reference,
     this.notes,
+    this.isReversed = false,
   });
 
   PaymentModel copyWith({
@@ -36,6 +38,7 @@ class PaymentModel {
     PaymentMethod? paymentMethod,
     String? reference,
     String? notes,
+    bool? isReversed,
   }) {
     return PaymentModel(
       id: id ?? this.id,
@@ -48,6 +51,7 @@ class PaymentModel {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       reference: reference ?? this.reference,
       notes: notes ?? this.notes,
+      isReversed: isReversed ?? this.isReversed,
     );
   }
 }
