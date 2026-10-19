@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/currency_formatter.dart';
-import '../../../core/utils/date_formatter.dart';
-import '../../../core/widgets/custom_button.dart';
-import '../models/customer_model.dart';
-import '../controllers/customers_controller.dart';
-import 'widgets/receive_payment_dialog.dart';
+import 'package:wholesale_app/core/constants/app_colors.dart';
+import 'package:wholesale_app/core/utils/currency_formatter.dart';
+import 'package:wholesale_app/core/utils/date_formatter.dart';
+import 'package:wholesale_app/core/widgets/custom_button.dart';
+import '../models/supplier_model.dart';
+import '../controllers/suppliers_controller.dart';
+import 'widgets/pay_supplier_dialog.dart';
 
-class CustomerKhataView extends StatelessWidget {
-  final CustomerModel customer;
+class SupplierLedgerView extends StatelessWidget {
+  final SupplierModel supplier;
 
-  const CustomerKhataView({super.key, required this.customer});
+  const SupplierLedgerView({super.key, required this.supplier});
 
   @override
   Widget build(BuildContext context) {
-    final customersCtrl = Get.find<CustomersController>();
+    final suppliersCtrl = Get.find<SuppliersController>();
 
     return Obx(() {
-      // Re-fetch customer reactively if available
-      final currentCustomer =
-          customersCtrl.getCustomerById(customer.id) ?? customer;
+      final currentSupplier =
+          suppliersCtrl.getSupplierById(supplier.id) ?? supplier;
 
       return Container(
         padding: const EdgeInsets.all(24),
@@ -32,7 +31,7 @@ class CustomerKhataView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Prominent Khata Header
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,11 +48,11 @@ class CustomerKhataView extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppColors.secondary,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
-                              'Customer Khata',
+                              'Supplier Ledger',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -64,7 +63,7 @@ class CustomerKhataView extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              currentCustomer.name,
+                              currentSupplier.name,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -79,7 +78,7 @@ class CustomerKhataView extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${currentCustomer.phone} • ${currentCustomer.city} • ${currentCustomer.address}',
+                        '${currentSupplier.phone} • ${currentSupplier.city} • ${currentSupplier.address}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -92,14 +91,13 @@ class CustomerKhataView extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 CustomButton(
-                  text: 'Receive Payment',
+                  text: 'Pay Supplier',
                   icon: Icons.payments_outlined,
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (ctx) => ReceivePaymentDialog(
-                        initialCustomer: currentCustomer,
-                      ),
+                      builder: (ctx) =>
+                          PaySupplierDialog(initialSupplier: currentSupplier),
                     );
                   },
                 ),
@@ -108,27 +106,25 @@ class CustomerKhataView extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // 3 Summary metric pills for the Customer Khata
+            // 3 Summary metric pills for the Supplier Ledger
             Row(
               children: [
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Total Invoiced Purchases',
+                    title: 'Total Stock Billed',
                     value: CurrencyFormatter.format(
-                      currentCustomer.totalPurchases,
+                      currentSupplier.totalPurchases,
                     ),
                     color: AppColors.primary,
                     bgColor: AppColors.accentLight,
-                    icon: Icons.receipt_long_outlined,
+                    icon: Icons.shopping_bag_outlined,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Total Payments Received',
-                    value: CurrencyFormatter.format(
-                      currentCustomer.amountReceived,
-                    ),
+                    title: 'Total Payments Paid',
+                    value: CurrencyFormatter.format(currentSupplier.totalPaid),
                     color: AppColors.success,
                     bgColor: AppColors.successLight,
                     icon: Icons.check_circle_outline,
@@ -137,17 +133,17 @@ class CustomerKhataView extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Net Khata Receivable Balance',
+                    title: 'Net Outstanding Payable',
                     value: CurrencyFormatter.format(
-                      currentCustomer.outstandingBalance,
+                      currentSupplier.outstandingPayable,
                     ),
-                    color: currentCustomer.outstandingBalance > 0
+                    color: currentSupplier.outstandingPayable > 0
                         ? AppColors.error
                         : AppColors.success,
-                    bgColor: currentCustomer.outstandingBalance > 0
+                    bgColor: currentSupplier.outstandingPayable > 0
                         ? AppColors.errorLight
                         : AppColors.successLight,
-                    icon: Icons.account_balance_wallet_outlined,
+                    icon: Icons.account_balance_outlined,
                   ),
                 ),
               ],
@@ -157,7 +153,7 @@ class CustomerKhataView extends StatelessWidget {
 
             // Ledger Transaction Table
             const Text(
-              'Khata Running Ledger (Dr / Cr Statement)',
+              'Supplier Running Ledger (Dr / Cr Statement)',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -205,7 +201,7 @@ class CustomerKhataView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Debit (Dr)',
+                            'Debit / Paid (Dr)',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -213,7 +209,7 @@ class CustomerKhataView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Credit (Cr)',
+                            'Credit / Bill (Cr)',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -221,7 +217,7 @@ class CustomerKhataView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Balance Due',
+                            'Net Payable',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -230,12 +226,12 @@ class CustomerKhataView extends StatelessWidget {
                     ),
                   ),
 
-                  if (currentCustomer.ledger.isEmpty)
+                  if (currentSupplier.ledger.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 30),
                       child: Center(
                         child: Text(
-                          'No transactions in this customer khata yet.',
+                          'No transactions in this supplier ledger yet.',
                           style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
@@ -247,10 +243,10 @@ class CustomerKhataView extends StatelessWidget {
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: currentCustomer.ledger.length,
+                      itemCount: currentSupplier.ledger.length,
                       separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
-                        final tx = currentCustomer.ledger[index];
+                        final tx = currentSupplier.ledger[index];
                         return Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -305,7 +301,7 @@ class CustomerKhataView extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: tx.debit > 0
-                                        ? AppColors.error
+                                        ? AppColors.success
                                         : AppColors.textMuted,
                                   ),
                                 ),
@@ -321,7 +317,7 @@ class CustomerKhataView extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: tx.credit > 0
-                                        ? AppColors.success
+                                        ? AppColors.error
                                         : AppColors.textMuted,
                                   ),
                                 ),

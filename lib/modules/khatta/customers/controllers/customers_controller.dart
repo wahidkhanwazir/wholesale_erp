@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import '../../../data/mock_data/mock_seed_data.dart';
+import 'package:wholesale_app/data/mock_data/mock_seed_data.dart';
 import '../models/customer_model.dart';
 import '../models/ledger_model.dart';
-import '../../../shared/models/enums.dart';
-import '../../sales/models/sale_model.dart';
+import 'package:wholesale_app/shared/models/enums.dart';
+import 'package:wholesale_app/modules/sales/models/sale_model.dart';
 
 class CustomersController extends GetxController {
   final customers = <CustomerModel>[].obs;

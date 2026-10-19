@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/widgets/app_dialog.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../models/supplier_model.dart';
-import '../../../../shared/models/enums.dart';
-import '../../controllers/suppliers_controller.dart';
-import '../../../dashboard/controllers/dashboard_controller.dart';
+import 'package:wholesale_app/core/constants/app_colors.dart';
+import 'package:wholesale_app/core/utils/currency_formatter.dart';
+import 'package:wholesale_app/core/widgets/app_dialog.dart';
+import 'package:wholesale_app/core/widgets/custom_button.dart';
+import 'package:wholesale_app/core/widgets/custom_text_field.dart';
+import '../../models/customer_model.dart';
+import 'package:wholesale_app/shared/models/enums.dart';
+import '../../controllers/customers_controller.dart';
+import 'package:wholesale_app/modules/dashboard/controllers/dashboard_controller.dart';
 
-class PaySupplierDialog extends StatefulWidget {
-  final SupplierModel? initialSupplier;
+class ReceivePaymentDialog extends StatefulWidget {
+  final CustomerModel? initialCustomer;
 
-  const PaySupplierDialog({super.key, this.initialSupplier});
+  const ReceivePaymentDialog({super.key, this.initialCustomer});
 
   @override
-  State<PaySupplierDialog> createState() => _PaySupplierDialogState();
+  State<ReceivePaymentDialog> createState() => _ReceivePaymentDialogState();
 }
 
-class _PaySupplierDialogState extends State<PaySupplierDialog> {
-  final _suppliersCtrl = Get.find<SuppliersController>();
+class _ReceivePaymentDialogState extends State<ReceivePaymentDialog> {
+  final _customersCtrl = Get.find<CustomersController>();
 
-  SupplierModel? _selectedSupplier;
+  CustomerModel? _selectedCustomer;
   final _amountCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
-  PaymentMethod _paymentMethod = PaymentMethod.bank;
+  PaymentMethod _paymentMethod = PaymentMethod.cash;
   final DateTime _paymentDate = DateTime.now();
 
   String? _errorMessage;
@@ -33,15 +33,15 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedSupplier =
-        widget.initialSupplier ??
-        (_suppliersCtrl.suppliers.isNotEmpty
-            ? _suppliersCtrl.suppliers.first
+    _selectedCustomer =
+        widget.initialCustomer ??
+        (_customersCtrl.customers.isNotEmpty
+            ? _customersCtrl.customers.first
             : null);
 
-    if (_selectedSupplier != null &&
-        _selectedSupplier!.outstandingPayable > 0) {
-      _amountCtrl.text = _selectedSupplier!.outstandingPayable.toStringAsFixed(
+    if (_selectedCustomer != null &&
+        _selectedCustomer!.outstandingBalance > 0) {
+      _amountCtrl.text = _selectedCustomer!.outstandingBalance.toStringAsFixed(
         0,
       );
     }
@@ -55,8 +55,8 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
   }
 
   void _submit() {
-    if (_selectedSupplier == null) {
-      setState(() => _errorMessage = 'Please select a supplier');
+    if (_selectedCustomer == null) {
+      setState(() => _errorMessage = 'Please select a customer');
       return;
     }
 
@@ -66,8 +66,8 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
       return;
     }
 
-    final success = _suppliersCtrl.paySupplier(
-      supplierId: _selectedSupplier!.id,
+    final success = _customersCtrl.receivePayment(
+      customerId: _selectedCustomer!.id,
       amount: amount,
       method: _paymentMethod,
       date: _paymentDate,
@@ -85,8 +85,8 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
   @override
   Widget build(BuildContext context) {
     return AppDialog(
-      title: 'Make Payment to Mill / Supplier',
-      subtitle: 'Record bank/cash disbursement and update mill payable ledger',
+      title: 'Receive Customer Khata Payment',
+      subtitle: 'Record received cash/bank payment and update running ledger',
       maxWidth: 580,
       actions: [
         CustomButton(
@@ -124,12 +124,12 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
             const SizedBox(height: 16),
           ],
 
-          // Supplier selection
+          // Customer selection
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Supplier / Mill *',
+                'Customer Account *',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -145,23 +145,23 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
                   border: Border.all(color: AppColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<SupplierModel>(
-                    value: _selectedSupplier,
+                  child: DropdownButton<CustomerModel>(
+                    value: _selectedCustomer,
                     isExpanded: true,
-                    items: _suppliersCtrl.suppliers.map((s) {
-                      return DropdownMenuItem<SupplierModel>(
-                        value: s,
+                    items: _customersCtrl.customers.map((c) {
+                      return DropdownMenuItem<CustomerModel>(
+                        value: c,
                         child: Text(
-                          '${s.name} (${s.city}) — Payable: ${CurrencyFormatter.format(s.outstandingPayable)}',
+                          '${c.name} (${c.city}) — Balance Due: ${CurrencyFormatter.format(c.outstandingBalance)}',
                           style: const TextStyle(fontSize: 13),
                         ),
                       );
                     }).toList(),
-                    onChanged: (s) {
+                    onChanged: (c) {
                       setState(() {
-                        _selectedSupplier = s;
-                        if (s != null && s.outstandingPayable > 0) {
-                          _amountCtrl.text = s.outstandingPayable
+                        _selectedCustomer = c;
+                        if (c != null && c.outstandingBalance > 0) {
+                          _amountCtrl.text = c.outstandingBalance
                               .toStringAsFixed(0);
                         }
                       });
@@ -174,7 +174,7 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
 
           const SizedBox(height: 16),
 
-          if (_selectedSupplier != null)
+          if (_selectedCustomer != null)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -186,7 +186,7 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Current Outstanding Payable:',
+                    'Current Outstanding Balance:',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -194,12 +194,12 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
                   ),
                   Text(
                     CurrencyFormatter.format(
-                      _selectedSupplier!.outstandingPayable,
+                      _selectedCustomer!.outstandingBalance,
                     ),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: _selectedSupplier!.outstandingPayable > 0
+                      color: _selectedCustomer!.outstandingBalance > 0
                           ? AppColors.error
                           : AppColors.success,
                     ),
@@ -214,7 +214,7 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
             children: [
               Expanded(
                 child: CustomTextField(
-                  label: 'Disbursement Amount (Rs.) *',
+                  label: 'Amount Received (Rs.) *',
                   hint: 'e.g. 50000',
                   controller: _amountCtrl,
                   keyboardType: TextInputType.number,
@@ -247,8 +247,8 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
                           isExpanded: true,
                           items:
                               [
-                                PaymentMethod.bank,
                                 PaymentMethod.cash,
+                                PaymentMethod.bank,
                                 PaymentMethod.cheque,
                               ].map((m) {
                                 return DropdownMenuItem<PaymentMethod>(
@@ -274,8 +274,8 @@ class _PaySupplierDialogState extends State<PaySupplierDialog> {
           const SizedBox(height: 16),
 
           CustomTextField(
-            label: 'Disbursement Note (Optional)',
-            hint: 'e.g. Online transfer via HBL reference #9412',
+            label: 'Payment Voucher Note (Optional)',
+            hint: 'e.g. Direct cash collected from Shah Alam market',
             controller: _notesCtrl,
           ),
         ],

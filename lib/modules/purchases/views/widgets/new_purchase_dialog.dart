@@ -6,12 +6,12 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
-import '../../../suppliers/models/supplier_model.dart';
+import '../../../khatta/suppliers/models/supplier_model.dart';
 import '../../../inventory/models/product_model.dart';
 import '../../models/purchase_model.dart';
 import '../../../../shared/models/enums.dart';
 import '../../../inventory/controllers/inventory_controller.dart';
-import '../../../suppliers/controllers/suppliers_controller.dart';
+import '../../../khatta/suppliers/controllers/suppliers_controller.dart';
 import '../../controllers/purchases_controller.dart';
 
 class NewPurchaseDialog extends StatefulWidget {

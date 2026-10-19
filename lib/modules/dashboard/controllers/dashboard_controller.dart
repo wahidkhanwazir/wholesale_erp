@@ -6,8 +6,8 @@ import '../models/dashboard_day_sales.dart';
 export '../models/dashboard_day_sales.dart';
 import '../../sales/controllers/sales_controller.dart';
 import '../../purchases/controllers/purchases_controller.dart';
-import '../../customers/controllers/customers_controller.dart';
-import '../../suppliers/controllers/suppliers_controller.dart';
+import '../../khatta/customers/controllers/customers_controller.dart';
+import '../../khatta/suppliers/controllers/suppliers_controller.dart';
 import '../../inventory/controllers/inventory_controller.dart';
 
 class DashboardController extends GetxController {

@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/currency_formatter.dart';
-import '../../../core/utils/date_formatter.dart';
-import '../../../core/widgets/custom_button.dart';
-import '../models/supplier_model.dart';
-import '../controllers/suppliers_controller.dart';
-import 'widgets/pay_supplier_dialog.dart';
+import 'package:wholesale_app/core/constants/app_colors.dart';
+import 'package:wholesale_app/core/utils/currency_formatter.dart';
+import 'package:wholesale_app/core/utils/date_formatter.dart';
+import 'package:wholesale_app/core/widgets/custom_button.dart';
+import '../models/customer_model.dart';
+import '../controllers/customers_controller.dart';
+import 'widgets/receive_payment_dialog.dart';
 
-class SupplierLedgerView extends StatelessWidget {
-  final SupplierModel supplier;
+class CustomerKhataView extends StatelessWidget {
+  final CustomerModel customer;
 
-  const SupplierLedgerView({super.key, required this.supplier});
+  const CustomerKhataView({super.key, required this.customer});
 
   @override
   Widget build(BuildContext context) {
-    final suppliersCtrl = Get.find<SuppliersController>();
+    final customersCtrl = Get.find<CustomersController>();
 
     return Obx(() {
-      final currentSupplier =
-          suppliersCtrl.getSupplierById(supplier.id) ?? supplier;
+      // Re-fetch customer reactively if available
+      final currentCustomer =
+          customersCtrl.getCustomerById(customer.id) ?? customer;
 
       return Container(
         padding: const EdgeInsets.all(24),
@@ -31,7 +32,7 @@ class SupplierLedgerView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
+            // Prominent Khata Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,11 +49,11 @@ class SupplierLedgerView extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.secondary,
+                              color: AppColors.primary,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
-                              'Supplier Ledger',
+                              'Customer Khata',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -63,7 +64,7 @@ class SupplierLedgerView extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              currentSupplier.name,
+                              currentCustomer.name,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -78,7 +79,7 @@ class SupplierLedgerView extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${currentSupplier.phone} • ${currentSupplier.city} • ${currentSupplier.address}',
+                        '${currentCustomer.phone} • ${currentCustomer.city} • ${currentCustomer.address}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -91,13 +92,14 @@ class SupplierLedgerView extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 CustomButton(
-                  text: 'Pay Supplier',
+                  text: 'Receive Payment',
                   icon: Icons.payments_outlined,
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (ctx) =>
-                          PaySupplierDialog(initialSupplier: currentSupplier),
+                      builder: (ctx) => ReceivePaymentDialog(
+                        initialCustomer: currentCustomer,
+                      ),
                     );
                   },
                 ),
@@ -106,25 +108,27 @@ class SupplierLedgerView extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // 3 Summary metric pills for the Supplier Ledger
+            // 3 Summary metric pills for the Customer Khata
             Row(
               children: [
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Total Stock Billed',
+                    title: 'Total Invoiced Purchases',
                     value: CurrencyFormatter.format(
-                      currentSupplier.totalPurchases,
+                      currentCustomer.totalPurchases,
                     ),
                     color: AppColors.primary,
                     bgColor: AppColors.accentLight,
-                    icon: Icons.shopping_bag_outlined,
+                    icon: Icons.receipt_long_outlined,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Total Payments Paid',
-                    value: CurrencyFormatter.format(currentSupplier.totalPaid),
+                    title: 'Total Payments Received',
+                    value: CurrencyFormatter.format(
+                      currentCustomer.amountReceived,
+                    ),
                     color: AppColors.success,
                     bgColor: AppColors.successLight,
                     icon: Icons.check_circle_outline,
@@ -133,17 +137,17 @@ class SupplierLedgerView extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildMetricTile(
-                    title: 'Net Outstanding Payable',
+                    title: 'Net Khata Receivable Balance',
                     value: CurrencyFormatter.format(
-                      currentSupplier.outstandingPayable,
+                      currentCustomer.outstandingBalance,
                     ),
-                    color: currentSupplier.outstandingPayable > 0
+                    color: currentCustomer.outstandingBalance > 0
                         ? AppColors.error
                         : AppColors.success,
-                    bgColor: currentSupplier.outstandingPayable > 0
+                    bgColor: currentCustomer.outstandingBalance > 0
                         ? AppColors.errorLight
                         : AppColors.successLight,
-                    icon: Icons.account_balance_outlined,
+                    icon: Icons.account_balance_wallet_outlined,
                   ),
                 ),
               ],
@@ -153,7 +157,7 @@ class SupplierLedgerView extends StatelessWidget {
 
             // Ledger Transaction Table
             const Text(
-              'Supplier Running Ledger (Dr / Cr Statement)',
+              'Khata Running Ledger (Dr / Cr Statement)',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -201,7 +205,7 @@ class SupplierLedgerView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Debit / Paid (Dr)',
+                            'Debit (Dr)',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -209,7 +213,7 @@ class SupplierLedgerView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Credit / Bill (Cr)',
+                            'Credit (Cr)',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -217,7 +221,7 @@ class SupplierLedgerView extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'Net Payable',
+                            'Balance Due',
                             style: _headerStyle,
                             textAlign: TextAlign.right,
                           ),
@@ -226,12 +230,12 @@ class SupplierLedgerView extends StatelessWidget {
                     ),
                   ),
 
-                  if (currentSupplier.ledger.isEmpty)
+                  if (currentCustomer.ledger.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 30),
                       child: Center(
                         child: Text(
-                          'No transactions in this supplier ledger yet.',
+                          'No transactions in this customer khata yet.',
                           style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
@@ -243,10 +247,10 @@ class SupplierLedgerView extends StatelessWidget {
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: currentSupplier.ledger.length,
+                      itemCount: currentCustomer.ledger.length,
                       separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
-                        final tx = currentSupplier.ledger[index];
+                        final tx = currentCustomer.ledger[index];
                         return Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -301,7 +305,7 @@ class SupplierLedgerView extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: tx.debit > 0
-                                        ? AppColors.success
+                                        ? AppColors.error
                                         : AppColors.textMuted,
                                   ),
                                 ),
@@ -317,7 +321,7 @@ class SupplierLedgerView extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: tx.credit > 0
-                                        ? AppColors.error
+                                        ? AppColors.success
                                         : AppColors.textMuted,
                                   ),
                                 ),

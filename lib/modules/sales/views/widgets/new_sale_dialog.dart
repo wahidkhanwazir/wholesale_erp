@@ -6,12 +6,12 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
-import '../../../customers/models/customer_model.dart';
+import '../../../khatta/customers/models/customer_model.dart';
 import '../../../inventory/models/product_model.dart';
 import '../../models/sale_model.dart';
 import '../../../../shared/models/enums.dart';
 import '../../../inventory/controllers/inventory_controller.dart';
-import '../../../customers/controllers/customers_controller.dart';
+import '../../../khatta/customers/controllers/customers_controller.dart';
 import '../../controllers/sales_controller.dart';
 
 class NewSaleDialog extends StatefulWidget {

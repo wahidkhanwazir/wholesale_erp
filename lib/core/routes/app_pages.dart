@@ -6,10 +6,10 @@ import '../../modules/sales/views/sales_view.dart';
 import '../../modules/sales/bindings/sales_binding.dart';
 import '../../modules/purchases/views/purchases_view.dart';
 import '../../modules/purchases/bindings/purchases_binding.dart';
-import '../../modules/customers/views/customers_view.dart';
-import '../../modules/customers/bindings/customers_binding.dart';
-import '../../modules/suppliers/views/suppliers_view.dart';
-import '../../modules/suppliers/bindings/suppliers_binding.dart';
+import '../../modules/khatta/customers/views/customers_view.dart';
+import '../../modules/khatta/customers/bindings/customers_binding.dart';
+import '../../modules/khatta/suppliers/views/suppliers_view.dart';
+import '../../modules/khatta/suppliers/bindings/suppliers_binding.dart';
 import '../../modules/inventory/views/inventory_view.dart';
 import '../../modules/inventory/bindings/inventory_binding.dart';
 

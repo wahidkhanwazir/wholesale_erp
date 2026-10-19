@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/widgets/app_dialog.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
+import 'package:wholesale_app/core/constants/app_colors.dart';
+import 'package:wholesale_app/core/constants/app_constants.dart';
+import 'package:wholesale_app/core/widgets/app_dialog.dart';
+import 'package:wholesale_app/core/widgets/custom_button.dart';
+import 'package:wholesale_app/core/widgets/custom_text_field.dart';
 import '../../models/customer_model.dart';
 import '../../models/ledger_model.dart';
-import '../../../../shared/models/enums.dart';
+import 'package:wholesale_app/shared/models/enums.dart';
 import '../../controllers/customers_controller.dart';
 
 class AddCustomerDialog extends StatefulWidget {

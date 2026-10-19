@@ -1,4 +1,4 @@
-import '../../../shared/models/enums.dart';
+import 'package:wholesale_app/shared/models/enums.dart';
 
 class LedgerTransaction {
   final String id;

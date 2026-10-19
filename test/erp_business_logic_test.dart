@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:wholesale_app/modules/inventory/controllers/inventory_controller.dart';
-import 'package:wholesale_app/modules/customers/controllers/customers_controller.dart';
-import 'package:wholesale_app/modules/suppliers/controllers/suppliers_controller.dart';
+import 'package:wholesale_app/modules/khatta/customers/controllers/customers_controller.dart';
+import 'package:wholesale_app/modules/khatta/suppliers/controllers/suppliers_controller.dart';
 import 'package:wholesale_app/modules/sales/controllers/sales_controller.dart';
 import 'package:wholesale_app/modules/purchases/controllers/purchases_controller.dart';
 import 'package:wholesale_app/modules/dashboard/controllers/dashboard_controller.dart';

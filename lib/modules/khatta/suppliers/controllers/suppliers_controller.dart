@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import '../../../data/mock_data/mock_seed_data.dart';
+import 'package:wholesale_app/data/mock_data/mock_seed_data.dart';
 import '../models/supplier_model.dart';
 import '../models/ledger_model.dart';
-import '../../../shared/models/enums.dart';
-import '../../purchases/models/purchase_model.dart';
+import 'package:wholesale_app/shared/models/enums.dart';
+import 'package:wholesale_app/modules/purchases/models/purchase_model.dart';
 
 class SuppliersController extends GetxController {
   final suppliers = <SupplierModel>[].obs;

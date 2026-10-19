@@ -3,7 +3,7 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../data/mock_data/mock_seed_data.dart';
 import '../models/sale_model.dart';
 import '../../inventory/controllers/inventory_controller.dart';
-import '../../customers/controllers/customers_controller.dart';
+import '../../khatta/customers/controllers/customers_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 
 class SalesController extends GetxController {

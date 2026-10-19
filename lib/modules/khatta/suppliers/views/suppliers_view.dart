@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
-import '../../../core/routes/app_routes.dart';
-import '../../../core/utils/currency_formatter.dart';
-import '../../../core/widgets/desktop_layout.dart';
-import '../../../core/widgets/custom_button.dart';
+import 'package:wholesale_app/core/constants/app_colors.dart';
+import 'package:wholesale_app/core/constants/app_strings.dart';
+import 'package:wholesale_app/core/routes/app_routes.dart';
+import 'package:wholesale_app/core/utils/currency_formatter.dart';
+import 'package:wholesale_app/core/widgets/desktop_layout.dart';
+import 'package:wholesale_app/core/widgets/custom_button.dart';
 import '../controllers/suppliers_controller.dart';
 import 'widgets/add_supplier_dialog.dart';
 import 'widgets/pay_supplier_dialog.dart';
