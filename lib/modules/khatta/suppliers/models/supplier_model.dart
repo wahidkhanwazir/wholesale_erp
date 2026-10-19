@@ -3,6 +3,7 @@ import 'ledger_model.dart';
 class SupplierModel {
   final String id;
   final String name;
+  final String contactPerson;
   final String phone;
   final String city;
   final String address;
@@ -14,6 +15,7 @@ class SupplierModel {
   SupplierModel({
     required this.id,
     required this.name,
+    this.contactPerson = '',
     required this.phone,
     required this.city,
     this.address = '',
@@ -26,6 +28,7 @@ class SupplierModel {
   SupplierModel copyWith({
     String? id,
     String? name,
+    String? contactPerson,
     String? phone,
     String? city,
     String? address,
@@ -37,6 +40,7 @@ class SupplierModel {
     return SupplierModel(
       id: id ?? this.id,
       name: name ?? this.name,
+      contactPerson: contactPerson ?? this.contactPerson,
       phone: phone ?? this.phone,
       city: city ?? this.city,
       address: address ?? this.address,

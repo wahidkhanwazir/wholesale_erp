@@ -52,9 +52,9 @@ class CustomerKhataView extends StatelessWidget {
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
-                              'Customer Khata',
-                              style: TextStyle(
+                            child: Text(
+                              currentCustomer.sellerType,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -79,7 +79,7 @@ class CustomerKhataView extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${currentCustomer.phone} • ${currentCustomer.city} • ${currentCustomer.address}',
+                        '${currentCustomer.contactPerson.isNotEmpty ? "👤 ${currentCustomer.contactPerson} • " : ""}${currentCustomer.phone} • ${currentCustomer.city}${currentCustomer.address.isNotEmpty ? " • ${currentCustomer.address}" : ""}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,

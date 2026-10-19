@@ -10,6 +10,9 @@ class SalesController extends GetxController {
   final sales = <SaleModel>[].obs;
   final searchQuery = ''.obs;
   final statusFilter = 'All'.obs;
+  final customerFilter = 'All'.obs;
+  final startDate = Rxn<DateTime>();
+  final endDate = Rxn<DateTime>();
 
   @override
   void onInit() {
@@ -21,22 +24,62 @@ class SalesController extends GetxController {
     sales.assignAll(MockSeedData.getSales());
   }
 
+  void clearDateRange() {
+    startDate.value = null;
+    endDate.value = null;
+  }
+
+  List<String> get availableCustomerNames {
+    final names = <String>{};
+    for (final s in sales) {
+      if (s.customerName.trim().isNotEmpty) {
+        names.add(s.customerName.trim());
+      }
+    }
+    if (Get.isRegistered<CustomersController>()) {
+      for (final c in Get.find<CustomersController>().customers) {
+        if (c.name.trim().isNotEmpty) {
+          names.add(c.name.trim());
+        }
+      }
+    }
+    final sorted = names.toList()..sort();
+    return ['All', ...sorted];
+  }
+
   List<SaleModel> get filteredSales {
     return sales.where((sale) {
-      final matchesSearch =
-          sale.invoiceNumber.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          ) ||
-          sale.customerName.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          );
+      final query = searchQuery.value.trim().toLowerCase();
+      final matchesSearch = query.isEmpty ||
+          sale.invoiceNumber.toLowerCase().contains(query) ||
+          sale.customerName.toLowerCase().contains(query);
 
-      final matchesStatus =
-          statusFilter.value == 'All' ||
-          sale.paymentStatus.displayName.toLowerCase() ==
-              statusFilter.value.toLowerCase();
+      final statusVal = statusFilter.value.toLowerCase();
+      final saleStatus = sale.paymentStatus.displayName.toLowerCase();
+      final matchesStatus = statusVal == 'all' ||
+          saleStatus == statusVal ||
+          (statusVal == 'partially paid' && saleStatus == 'partial') ||
+          (statusVal == 'partial' && saleStatus == 'partially paid');
 
-      return matchesSearch && matchesStatus;
+      final customerVal = customerFilter.value.toLowerCase();
+      final matchesCustomer = customerVal == 'all' ||
+          sale.customerName.toLowerCase() == customerVal;
+
+      final start = startDate.value;
+      final end = endDate.value;
+      final saleDateZero =
+          DateTime(sale.date.year, sale.date.month, sale.date.day);
+
+      final matchesStart = start == null ||
+          !saleDateZero.isBefore(DateTime(start.year, start.month, start.day));
+      final matchesEnd = end == null ||
+          !saleDateZero.isAfter(DateTime(end.year, end.month, end.day));
+
+      return matchesSearch &&
+          matchesStatus &&
+          matchesCustomer &&
+          matchesStart &&
+          matchesEnd;
     }).toList();
   }
 

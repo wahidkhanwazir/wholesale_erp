@@ -78,7 +78,7 @@ class SupplierLedgerView extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${currentSupplier.phone} • ${currentSupplier.city} • ${currentSupplier.address}',
+                        '${currentSupplier.contactPerson.isNotEmpty ? "👤 ${currentSupplier.contactPerson} • " : ""}${currentSupplier.phone} • ${currentSupplier.city}${currentSupplier.address.isNotEmpty ? " • ${currentSupplier.address}" : ""}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
