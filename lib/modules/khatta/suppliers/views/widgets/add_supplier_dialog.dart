@@ -21,6 +21,7 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
   final _suppliersCtrl = Get.find<SuppliersController>();
 
   final _nameCtrl = TextEditingController();
+  final _contactPersonCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _openingPayableCtrl = TextEditingController(text: '0');
@@ -31,6 +32,7 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _contactPersonCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
     _openingPayableCtrl.dispose();
@@ -39,6 +41,7 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
 
   void _submit() {
     final name = _nameCtrl.text.trim();
+    final contactPerson = _contactPersonCtrl.text.trim();
     final phone = _phoneCtrl.text.trim();
     final address = _addressCtrl.text.trim();
     final openingBal = double.tryParse(_openingPayableCtrl.text.trim()) ?? 0.0;
@@ -51,7 +54,7 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
     }
 
     if (phone.isEmpty) {
-      setState(() => _errorMessage = 'Supplier phone is required');
+      setState(() => _errorMessage = 'Contact phone/WhatsApp number is required');
       return;
     }
 
@@ -77,6 +80,7 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
     final supplier = SupplierModel(
       id: newId,
       name: name,
+      contactPerson: contactPerson,
       phone: phone,
       city: _selectedCity,
       address: address,
@@ -87,15 +91,15 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
     );
 
     _suppliersCtrl.addSupplier(supplier);
-    Get.back();
+    Get.back(result: supplier);
   }
 
   @override
   Widget build(BuildContext context) {
     return AppDialog(
-      title: 'Register New Garment Mill / Supplier',
-      subtitle: 'Add textile mill or wholesale manufacturer details',
-      maxWidth: 560,
+      title: 'Register New Textile Mill / Supplier',
+      subtitle: 'Add fabric mill or wholesale supplier with required details',
+      maxWidth: 580,
       actions: [
         CustomButton(
           text: 'Cancel',
@@ -131,17 +135,28 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
             ),
             const SizedBox(height: 16),
           ],
+
+          // Mill / Supplier Name
           CustomTextField(
-            label: 'Mill / Supplier Name *',
+            label: 'Mill / Supplier Business Name *',
             hint: 'e.g. Master Textile Mills',
             controller: _nameCtrl,
           ),
           const SizedBox(height: 14),
+
+          // Contact Person
+          CustomTextField(
+            label: 'Contact Person / Mill Representative',
+            hint: 'e.g. Tariq Mahmood (Sales Manager)',
+            controller: _contactPersonCtrl,
+          ),
+          const SizedBox(height: 14),
+
           Row(
             children: [
               Expanded(
                 child: CustomTextField(
-                  label: 'Phone Number *',
+                  label: 'Phone / WhatsApp *',
                   hint: 'e.g. +92 41 8765432',
                   controller: _phoneCtrl,
                 ),
@@ -192,12 +207,14 @@ class _AddSupplierDialogState extends State<AddSupplierDialog> {
             ],
           ),
           const SizedBox(height: 14),
+
           CustomTextField(
             label: 'Mill / Factory Address',
-            hint: 'e.g. SITE Area / Industrial Zone',
+            hint: 'e.g. Plot #45, Industrial Estate, Faisalabad',
             controller: _addressCtrl,
           ),
           const SizedBox(height: 14),
+
           CustomTextField(
             label: 'Opening Payable Balance (Rs.)',
             hint: '0',

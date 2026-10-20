@@ -12,6 +12,7 @@ import '../../models/sale_model.dart';
 import '../../../../shared/models/enums.dart';
 import '../../../inventory/controllers/inventory_controller.dart';
 import '../../../khatta/customers/controllers/customers_controller.dart';
+import '../../../khatta/customers/views/widgets/add_customer_dialog.dart';
 import '../../controllers/sales_controller.dart';
 
 class NewSaleDialog extends StatefulWidget {
@@ -274,13 +275,49 @@ class _NewSaleDialogState extends State<NewSaleDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Select Customer (Khata Account)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Select Customer / Seller (Khata)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            final newCust = await showDialog<CustomerModel>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (ctx) => const AddCustomerDialog(),
+                            );
+                            if (newCust != null) {
+                              setState(() => _selectedCustomer = newCust);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.add_circle_outline, size: 13, color: AppColors.primary),
+                                SizedBox(width: 4),
+                                Text(
+                                  '+ Add Seller / Customer',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     Container(

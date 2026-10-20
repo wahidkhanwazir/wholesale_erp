@@ -19,6 +19,7 @@ class AppStrings {
   static const String newSale = 'New Sale';
   static const String newPurchase = 'New Purchase';
   static const String addCustomer = 'Add Customer';
+  static const String addSeller = 'Add Seller';
   static const String addSupplier = 'Add Supplier';
   static const String receivePayment = 'Receive Payment';
   static const String paySupplier = 'Pay Supplier';

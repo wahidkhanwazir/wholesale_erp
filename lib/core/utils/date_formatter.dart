@@ -2,11 +2,16 @@ import 'package:intl/intl.dart';
 
 class DateFormatter {
   static final DateFormat _dateFormat = DateFormat('dd MMM yyyy');
+  static final DateFormat _numericFormat = DateFormat('dd/MM/yyyy');
   static final DateFormat _timeFormat = DateFormat('hh:mm a');
   static final DateFormat _dateTimeFormat = DateFormat('dd MMM yyyy, hh:mm a');
 
   static String formatDate(DateTime date) {
     return _dateFormat.format(date);
+  }
+
+  static String formatNumeric(DateTime date) {
+    return _numericFormat.format(date);
   }
 
   static String formatTime(DateTime date) {
