@@ -170,11 +170,12 @@ class KhataView extends StatelessWidget {
             ),
           ),
 
-          // Header Action Buttons
+          // Header Action Buttons (Sleek compact sizing)
           headerActions: [
             // Primary Action Button (Receive Payment / Pay Supplier)
             CustomButton(
               text: config.primaryBtnText,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -186,12 +187,13 @@ class KhataView extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
 
             // Secondary Action Button (+ Add Customer / + Add Supplier)
             CustomButton(
               text: config.addPartyBtnText,
               isSecondary: true,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               onPressed: () {
                 showDialog(
                   context: context,

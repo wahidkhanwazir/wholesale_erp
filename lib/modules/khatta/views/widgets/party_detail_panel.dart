@@ -88,7 +88,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                   ),
                   const SizedBox(width: 14),
 
-                  // Name & Metadata (Wraps naturally instead of being cut off!)
+                  // Name & Metadata (Wraps naturally so full name is displayed without truncation!)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,12 +96,12 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                         Text(
                           party.name,
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
                             letterSpacing: -0.3,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
@@ -111,7 +111,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),
-                          maxLines: 2, // Wraps naturally so metadata is fully visible!
+                          maxLines: 2,
                         ),
                       ],
                     ),
@@ -119,7 +119,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
 
                   const SizedBox(width: 12),
 
-                  // Action Buttons Top Right (Never wrap button text!)
+                  // Action Buttons Top Right (Sleek compact sizing)
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -128,6 +128,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                         CustomButton(
                           text: isCustomer ? KhataStrings.receivePayment : KhataStrings.paySupplier,
                           icon: Icons.payments_outlined,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -139,12 +140,13 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                             );
                           },
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
 
                         // Secondary Action: + Sale / + Purchase
                         CustomButton(
                           text: isCustomer ? '+ Sale' : '+ Purchase',
                           isSecondary: true,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -153,18 +155,19 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                             );
                           },
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
 
                         // Statement Dropdown Menu (Print/PDF, Copy text, WhatsApp)
                         PopupMenuButton<String>(
                           tooltip: 'Statement Options',
-                          offset: const Offset(0, 42),
+                          offset: const Offset(0, 38),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: const BorderSide(color: AppColors.border),
                           ),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            height: 36,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
                               borderRadius: BorderRadius.circular(8),
@@ -176,7 +179,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                                 Text(
                                   'Statement',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
                                   ),
@@ -906,23 +909,6 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
       ),
     );
   }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-          ),
-          Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showPrintPdfDialog(BuildContext context, PartyModel party) {
@@ -1130,4 +1116,3 @@ Wholesale ERP''';
       ),
     );
   }
-}

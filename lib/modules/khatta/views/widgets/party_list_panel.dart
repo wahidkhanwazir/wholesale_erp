@@ -31,28 +31,39 @@ class PartyListPanel extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(
-                  focusNode: controller.searchFocusNode,
-                  onChanged: (val) => controller.activeSearchQuery = val,
-                  style: const TextStyle(fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: controller.config.searchHint,
-                    hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                    prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    fillColor: AppColors.background,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.border),
+                Obx(() {
+                  final activeQuery = controller.activeSearchQuery;
+                  return TextField(
+                    focusNode: controller.searchFocusNode,
+                    controller: TextEditingController(text: activeQuery)
+                      ..selection = TextSelection.collapsed(offset: activeQuery.length),
+                    onChanged: (val) => controller.activeSearchQuery = val,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: controller.config.searchHint,
+                      hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
+                      suffixIcon: activeQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 16, color: AppColors.textMuted),
+                              onPressed: () => controller.activeSearchQuery = '',
+                            )
+                          : null,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      fillColor: AppColors.background,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: AppColors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: AppColors.border),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.border),
-                    ),
-                  ),
-                ),
+                  );
+                }),
                 const SizedBox(height: 10),
 
                 // Filter Chips Row
