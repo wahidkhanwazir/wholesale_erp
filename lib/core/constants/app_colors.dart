@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Colors - Deep Forest Green & Emerald
-  static const Color primary = Color(0xFF1B4332);
-  static const Color primaryDark = Color(0xFF0F291E);
-  static const Color primaryLight = Color(0xFF2D6A4F);
+  // Brand Colors - Deep Forest Green & Emerald (Matching Khata Buttons)
+  static const Color primary = Color(0xFF137547);
+  static const Color primaryDark = Color(0xFF0D5432);
+  static const Color primaryLight = Color(0xFF1B8A52);
   static const Color secondary = Color(0xFF40916C);
   static const Color accent = Color(0xFF52B788);
   static const Color accentLight = Color(0xFFD8F3DC);

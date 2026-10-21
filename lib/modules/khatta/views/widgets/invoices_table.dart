@@ -28,7 +28,7 @@ class InvoiceItemData {
   });
 }
 
-class InvoicesTable extends StatelessWidget {
+class InvoicesTable extends StatefulWidget {
   final PartyModel party;
   final DateTime? fromDate;
   final DateTime? toDate;
@@ -40,12 +40,25 @@ class InvoicesTable extends StatelessWidget {
     this.toDate,
   });
 
+  @override
+  State<InvoicesTable> createState() => _InvoicesTableState();
+}
+
+class _InvoicesTableState extends State<InvoicesTable> {
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalController.dispose();
+    super.dispose();
+  }
+
   List<InvoiceItemData> get invoiceList {
-    final isCustomer = party.type == PartyType.customer;
+    final isCustomer = widget.party.type == PartyType.customer;
     final List<InvoiceItemData> list = [];
 
     // 1. Get all sale / purchase transactions from ledger
-    var txList = party.ledger.where((tx) {
+    var txList = widget.party.ledger.where((tx) {
       final ref = tx.referenceType.toLowerCase();
       return (ref.contains('sale') || ref.contains('inv') || ref.contains('purchase') || ref.contains('pur')) &&
           !ref.contains('opening') &&
@@ -53,16 +66,16 @@ class InvoicesTable extends StatelessWidget {
     }).toList();
 
     // 2. Filter by date range
-    if (fromDate != null) {
-      final start = DateTime(fromDate!.year, fromDate!.month, fromDate!.day);
+    if (widget.fromDate != null) {
+      final start = DateTime(widget.fromDate!.year, widget.fromDate!.month, widget.fromDate!.day);
       txList = txList.where((tx) {
         final txDay = DateTime(tx.date.year, tx.date.month, tx.date.day);
         return txDay.isAfter(start) || txDay.isAtSameMomentAs(start);
       }).toList();
     }
 
-    if (toDate != null) {
-      final end = DateTime(toDate!.year, toDate!.month, toDate!.day);
+    if (widget.toDate != null) {
+      final end = DateTime(widget.toDate!.year, widget.toDate!.month, widget.toDate!.day);
       txList = txList.where((tx) {
         final txDay = DateTime(tx.date.year, tx.date.month, tx.date.day);
         return txDay.isBefore(end) || txDay.isAtSameMomentAs(end);
@@ -81,7 +94,7 @@ class InvoicesTable extends StatelessWidget {
     }
 
     // Track total party payments for FIFO allocation if no exact model match
-    double unallocatedPayment = party.totalPaidOrReceived;
+    double unallocatedPayment = widget.party.totalPaidOrReceived;
 
     for (final tx in txList) {
       final amount = isCustomer ? tx.debit : tx.credit;
@@ -169,7 +182,7 @@ class InvoicesTable extends StatelessWidget {
         }
       }
 
-      final dueDate = tx.date.add(Duration(days: party.creditDays ?? 30));
+      final dueDate = tx.date.add(Duration(days: widget.party.creditDays ?? 30));
 
       list.add(
         InvoiceItemData(
@@ -189,7 +202,7 @@ class InvoicesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCustomer = party.type == PartyType.customer;
+    final isCustomer = widget.party.type == PartyType.customer;
     final invoices = invoiceList;
 
     final col1Header = isCustomer ? 'SALE NO' : 'PURCHASE NO';
@@ -209,219 +222,231 @@ class InvoicesTable extends StatelessWidget {
         const minTableWidth = 840.0;
         final actualWidth = constraints.maxWidth < minTableWidth ? minTableWidth : constraints.maxWidth;
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: actualWidth,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header Row matching Screenshot 1
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: const BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                      border: Border(bottom: BorderSide(color: AppColors.border)),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 140, child: Text(col1Header, style: _headerStyle)),
-                        const SizedBox(width: 130, child: Text('DATE', style: _headerStyle)),
-                        const SizedBox(width: 130, child: Text('DUE', style: _headerStyle)),
-                        const Expanded(child: Text('AMOUNT', style: _headerStyle, textAlign: TextAlign.right)),
-                        const Expanded(child: Text('PAID', style: _headerStyle, textAlign: TextAlign.right)),
-                        const Expanded(child: Text('BAQAYA', style: _headerStyle, textAlign: TextAlign.right)),
-                        const SizedBox(width: 100, child: Text('STATUS', style: _headerStyle, textAlign: TextAlign.center)),
-                      ],
-                    ),
-                  ),
-
-                  // Table Body
-                  if (invoices.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Center(
-                        child: Text(
-                          isCustomer ? 'No sales invoices found.' : 'No purchase bills found.',
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                        ),
-                      ),
-                    )
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: invoices.length,
-                      separatorBuilder: (_, _) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final inv = invoices[index];
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                          color: index % 2 == 0 ? Colors.transparent : AppColors.background.withValues(alpha: 0.2),
-                          child: Row(
-                            children: [
-                              // SALE NO / PURCHASE NO
-                              SizedBox(
-                                width: 140,
-                                child: Text(
-                                  inv.invoiceNumber,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ),
-
-                              // DATE
-                              SizedBox(
-                                width: 130,
-                                child: Text(
-                                  DateFormat('dd MMM yyyy').format(inv.date),
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-
-                              // DUE DATE
-                              SizedBox(
-                                width: 130,
-                                child: Text(
-                                  DateFormat('dd MMM yyyy').format(inv.dueDate),
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-
-                              // AMOUNT
-                              Expanded(
-                                child: Text(
-                                  CurrencyFormatter.format(inv.amount),
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                    fontFeatures: [FontFeature.tabularFigures()],
-                                  ),
-                                ),
-                              ),
-
-                              // PAID
-                              Expanded(
-                                child: Text(
-                                  CurrencyFormatter.format(inv.paid),
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.success,
-                                    fontFeatures: [FontFeature.tabularFigures()],
-                                  ),
-                                ),
-                              ),
-
-                              // BAQAYA
-                              Expanded(
-                                child: Text(
-                                  CurrencyFormatter.format(inv.baqaya),
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                    fontFeatures: [FontFeature.tabularFigures()],
-                                  ),
-                                ),
-                              ),
-
-                              // STATUS BADGE
-                              SizedBox(
-                                width: 100,
-                                child: Center(
-                                  child: _buildStatusBadge(inv.status),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-
-                  // Table Footer Summary Row
-                  if (invoices.isNotEmpty)
+        return Scrollbar(
+          controller: _horizontalController,
+          thumbVisibility: true,
+          trackVisibility: true,
+          child: SingleChildScrollView(
+            controller: _horizontalController,
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: actualWidth,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header Row matching Screenshot 1
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: const BoxDecoration(
                         color: AppColors.background,
-                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
-                        border: Border(top: BorderSide(color: AppColors.border, width: 2)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                        border: Border(bottom: BorderSide(color: AppColors.border)),
                       ),
                       child: Row(
                         children: [
-                          const SizedBox(
-                            width: 400,
-                            child: Text(
-                              'Total',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              CurrencyFormatter.format(totalAmountSum),
-                              textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                                fontFeatures: [FontFeature.tabularFigures()],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              CurrencyFormatter.format(totalPaidSum),
-                              textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.success,
-                                fontFeatures: [FontFeature.tabularFigures()],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              CurrencyFormatter.format(totalBaqayaSum),
-                              textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                                fontFeatures: [FontFeature.tabularFigures()],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 100),
+                          SizedBox(width: 140, child: Text(col1Header, style: _headerStyle)),
+                          const SizedBox(width: 130, child: Text('DATE', style: _headerStyle)),
+                          const SizedBox(width: 130, child: Text('DUE', style: _headerStyle)),
+                          const Expanded(child: Text('AMOUNT', style: _headerStyle, textAlign: TextAlign.right)),
+                          const Expanded(child: Text('PAID', style: _headerStyle, textAlign: TextAlign.right)),
+                          const Expanded(child: Text('BAQAYA', style: _headerStyle, textAlign: TextAlign.right)),
+                          const SizedBox(width: 100, child: Text('STATUS', style: _headerStyle, textAlign: TextAlign.center)),
                         ],
                       ),
                     ),
-                ],
+
+                    // Table Body
+                    if (invoices.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Text(
+                            isCustomer ? 'No sales invoices found.' : 'No purchase bills found.',
+                            style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                          ),
+                        ),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: invoices.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final inv = invoices[index];
+
+                          return Material(
+                            color: index % 2 == 0 ? Colors.transparent : AppColors.background.withValues(alpha: 0.2),
+                            child: InkWell(
+                              onTap: () {},
+                              hoverColor: AppColors.primary.withValues(alpha: 0.05),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                                child: Row(
+                                  children: [
+                                    // SALE NO / PURCHASE NO
+                                    SizedBox(
+                                      width: 140,
+                                      child: Text(
+                                        inv.invoiceNumber,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // DATE
+                                    SizedBox(
+                                      width: 130,
+                                      child: Text(
+                                        DateFormat('dd MMM yyyy').format(inv.date),
+                                        style: const TextStyle(
+                                          fontSize: 12.5,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // DUE DATE
+                                    SizedBox(
+                                      width: 130,
+                                      child: Text(
+                                        DateFormat('dd MMM yyyy').format(inv.dueDate),
+                                        style: const TextStyle(
+                                          fontSize: 12.5,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // AMOUNT
+                                    Expanded(
+                                      child: Text(
+                                        CurrencyFormatter.format(inv.amount),
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                    ),
+
+                                    // PAID
+                                    Expanded(
+                                      child: Text(
+                                        CurrencyFormatter.format(inv.paid),
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.success,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                    ),
+
+                                    // BAQAYA
+                                    Expanded(
+                                      child: Text(
+                                        CurrencyFormatter.format(inv.baqaya),
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                          fontFeatures: [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                    ),
+
+                                    // STATUS BADGE
+                                    SizedBox(
+                                      width: 100,
+                                      child: Center(
+                                        child: _buildStatusBadge(inv.status),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                    // Table Footer Summary Row
+                    if (invoices.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: const BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
+                          border: Border(top: BorderSide(color: AppColors.border, width: 2)),
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 400,
+                              child: Text(
+                                'Total',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                CurrencyFormatter.format(totalAmountSum),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                CurrencyFormatter.format(totalPaidSum),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.success,
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                CurrencyFormatter.format(totalBaqayaSum),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 100),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
