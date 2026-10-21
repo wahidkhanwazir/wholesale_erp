@@ -114,4 +114,20 @@ class PartyModel {
       return 'Cleared';
     }
   }
+
+  String get contactPerson {
+    if (type == PartyType.customer) {
+      return (originalModel as CustomerModel).contactPerson;
+    } else {
+      return (originalModel as SupplierModel).contactPerson;
+    }
+  }
+
+  String get sellerType {
+    if (type == PartyType.customer) {
+      return (originalModel as CustomerModel).sellerType;
+    } else {
+      return 'Mill Supplier';
+    }
+  }
 }

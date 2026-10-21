@@ -4,6 +4,7 @@ import 'package:wholesale_app/data/mock_data/mock_seed_data.dart';
 import 'package:wholesale_app/modules/khatta/customers/controllers/customers_controller.dart';
 import 'package:wholesale_app/modules/khatta/suppliers/controllers/suppliers_controller.dart';
 import 'package:wholesale_app/modules/khatta/customers/models/customer_model.dart';
+import 'package:wholesale_app/modules/khatta/models/party_model.dart';
 import 'package:wholesale_app/shared/models/enums.dart';
 
 void main() {
@@ -150,5 +151,18 @@ void main() {
       final deactivated = customersCtrl.getCustomerById(customer.id);
       expect(deactivated!.isActive, isFalse);
     });
+
+    test('PartyModel contactPerson and sellerType getters work for customer and supplier', () {
+      final customer = customersCtrl.customers.first;
+      final partyCust = PartyModel.fromCustomer(customer);
+      expect(partyCust.contactPerson, equals(customer.contactPerson));
+      expect(partyCust.sellerType, equals(customer.sellerType));
+
+      final supplier = suppliersCtrl.suppliers.first;
+      final partySupp = PartyModel.fromSupplier(supplier);
+      expect(partySupp.contactPerson, equals(supplier.contactPerson));
+      expect(partySupp.sellerType, equals('Mill Supplier'));
+    });
   });
 }
+

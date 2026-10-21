@@ -8,8 +8,8 @@ import 'package:wholesale_app/shared/models/enums.dart';
 import '../controllers/khata_controller.dart';
 import '../config/khata_strings.dart';
 import 'widgets/kpi_strip.dart';
-import 'widgets/party_list_panel.dart';
 import 'widgets/party_detail_panel.dart';
+import 'widgets/party_table_panel.dart';
 import 'widgets/party_form_dialog.dart';
 import 'widgets/payment_dialog.dart';
 
@@ -215,7 +215,7 @@ class KhataView extends StatelessWidget {
                 const KpiStrip(),
                 const SizedBox(height: 16),
 
-                // Main Split View Area
+                // Main View Area: Full-Width Table Showing All Users with their Khattas
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -241,41 +241,12 @@ class KhataView extends StatelessWidget {
                             ],
                           );
                         }
-                        return const PartyListPanel(width: double.infinity);
+                        return const PartyTablePanel();
                       }
 
-                      // Desktop / Tablet (>=768px): Split View Layout (~30% List, ~70% Detail)
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Expanded(
-                            flex: 3, // ~30% width
-                            child: PartyListPanel(),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 7, // ~70% width
-                            child: controller.selectedParty != null
-                                ? const SingleChildScrollView(
-                                    child: PartyDetailPanel(),
-                                  )
-                                : Container(
-                                    padding: const EdgeInsets.all(40),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.surface,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: AppColors.border),
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        'Select a party from the list to view their running Khata statement.',
-                                        style: TextStyle(color: AppColors.textMuted, fontSize: 14),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ],
-                      );
+                      // Desktop / Tablet (>=768px): Full-Width Table showing all users with their khattas
+                      // Clicking any party row opens the right-side detail dialogue
+                      return const PartyTablePanel();
                     },
                   ),
                 ),

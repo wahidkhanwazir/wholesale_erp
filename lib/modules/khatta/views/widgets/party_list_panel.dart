@@ -6,6 +6,7 @@ import 'package:wholesale_app/shared/models/enums.dart';
 import '../../controllers/khata_controller.dart';
 import '../../models/party_model.dart';
 import '../../config/khata_strings.dart';
+import 'party_detail_side_dialog.dart';
 
 class PartyListPanel extends StatelessWidget {
   final double? width;
@@ -188,7 +189,10 @@ class PartyListPanel extends StatelessWidget {
                     context: context,
                     party: party,
                     isSelected: isSelected,
-                    onTap: () => controller.selectParty(party.id),
+                    onTap: () {
+                      controller.selectParty(party.id);
+                      showPartyDetailSideDialog(context, party);
+                    },
                   );
                 },
               );
