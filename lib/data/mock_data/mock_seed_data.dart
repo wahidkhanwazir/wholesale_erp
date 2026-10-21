@@ -1,10 +1,10 @@
 import '../../shared/models/enums.dart';
 import '../../modules/inventory/models/product_model.dart';
-import '../../modules/customers/models/customer_model.dart';
-import '../../modules/suppliers/models/supplier_model.dart';
+import '../../modules/khatta/customers/models/customer_model.dart';
+import '../../modules/khatta/suppliers/models/supplier_model.dart';
 import '../../modules/sales/models/sale_model.dart';
 import '../../modules/purchases/models/purchase_model.dart';
-import '../../modules/customers/models/ledger_model.dart';
+import '../../modules/khatta/customers/models/ledger_model.dart';
 
 class MockSeedData {
   static List<ProductModel> getProducts() {

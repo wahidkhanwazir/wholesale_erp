@@ -138,14 +138,9 @@ class SidebarNavigation extends StatelessWidget {
                   route: AppRoutes.purchases,
                 ),
                 _buildNavItem(
-                  title: AppStrings.navCustomers,
+                  title: 'Khata',
                   icon: Icons.menu_book_rounded,
                   route: AppRoutes.customers,
-                ),
-                _buildNavItem(
-                  title: AppStrings.navSuppliers,
-                  icon: Icons.local_shipping_outlined,
-                  route: AppRoutes.suppliers,
                 ),
                 _buildNavItem(
                   title: AppStrings.navInventory,
@@ -231,7 +226,8 @@ class SidebarNavigation extends StatelessWidget {
     required IconData icon,
     required String route,
   }) {
-    final isSelected = currentRoute == route;
+    final isSelected = currentRoute == route ||
+        (route == AppRoutes.customers && currentRoute == AppRoutes.suppliers);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),

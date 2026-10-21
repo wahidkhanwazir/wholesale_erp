@@ -117,6 +117,15 @@ class AppTheme {
           side: const BorderSide(color: AppColors.border),
         ),
       ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbVisibility: WidgetStateProperty.all(true),
+        trackVisibility: WidgetStateProperty.all(true),
+        thickness: WidgetStateProperty.all(7.0),
+        thumbColor: WidgetStateProperty.all(const Color(0xFF64748B)),
+        trackColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+        trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+        radius: const Radius.circular(4),
+      ),
     );
   }
 }

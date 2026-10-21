@@ -3,13 +3,16 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../data/mock_data/mock_seed_data.dart';
 import '../models/purchase_model.dart';
 import '../../inventory/controllers/inventory_controller.dart';
-import '../../suppliers/controllers/suppliers_controller.dart';
+import '../../khatta/suppliers/controllers/suppliers_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 
 class PurchasesController extends GetxController {
   final purchases = <PurchaseModel>[].obs;
   final searchQuery = ''.obs;
   final statusFilter = 'All'.obs;
+  final supplierFilter = 'All'.obs;
+  final startDate = Rxn<DateTime>();
+  final endDate = Rxn<DateTime>();
 
   @override
   void onInit() {
@@ -21,22 +24,62 @@ class PurchasesController extends GetxController {
     purchases.assignAll(MockSeedData.getPurchases());
   }
 
+  void clearDateRange() {
+    startDate.value = null;
+    endDate.value = null;
+  }
+
+  List<String> get availableSupplierNames {
+    final names = <String>{};
+    for (final p in purchases) {
+      if (p.supplierName.trim().isNotEmpty) {
+        names.add(p.supplierName.trim());
+      }
+    }
+    if (Get.isRegistered<SuppliersController>()) {
+      for (final s in Get.find<SuppliersController>().suppliers) {
+        if (s.name.trim().isNotEmpty) {
+          names.add(s.name.trim());
+        }
+      }
+    }
+    final sorted = names.toList()..sort();
+    return ['All', ...sorted];
+  }
+
   List<PurchaseModel> get filteredPurchases {
     return purchases.where((purchase) {
-      final matchesSearch =
-          purchase.purchaseNumber.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          ) ||
-          purchase.supplierName.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          );
+      final query = searchQuery.value.trim().toLowerCase();
+      final matchesSearch = query.isEmpty ||
+          purchase.purchaseNumber.toLowerCase().contains(query) ||
+          purchase.supplierName.toLowerCase().contains(query);
 
-      final matchesStatus =
-          statusFilter.value == 'All' ||
-          purchase.paymentStatus.displayName.toLowerCase() ==
-              statusFilter.value.toLowerCase();
+      final statusVal = statusFilter.value.toLowerCase();
+      final purchaseStatus = purchase.paymentStatus.displayName.toLowerCase();
+      final matchesStatus = statusVal == 'all' ||
+          purchaseStatus == statusVal ||
+          (statusVal == 'partially paid' && purchaseStatus == 'partial') ||
+          (statusVal == 'partial' && purchaseStatus == 'partially paid');
 
-      return matchesSearch && matchesStatus;
+      final supplierVal = supplierFilter.value.toLowerCase();
+      final matchesSupplier = supplierVal == 'all' ||
+          purchase.supplierName.toLowerCase() == supplierVal;
+
+      final start = startDate.value;
+      final end = endDate.value;
+      final purchaseDateZero =
+          DateTime(purchase.date.year, purchase.date.month, purchase.date.day);
+
+      final matchesStart = start == null ||
+          !purchaseDateZero.isBefore(DateTime(start.year, start.month, start.day));
+      final matchesEnd = end == null ||
+          !purchaseDateZero.isAfter(DateTime(end.year, end.month, end.day));
+
+      return matchesSearch &&
+          matchesStatus &&
+          matchesSupplier &&
+          matchesStart &&
+          matchesEnd;
     }).toList();
   }
 

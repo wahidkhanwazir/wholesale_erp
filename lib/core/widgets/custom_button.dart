@@ -9,6 +9,7 @@ class CustomButton extends StatelessWidget {
   final bool isDanger;
   final bool isLoading;
   final double? width;
+  final EdgeInsetsGeometry? padding;
 
   const CustomButton({
     super.key,
@@ -19,6 +20,7 @@ class CustomButton extends StatelessWidget {
     this.isDanger = false,
     this.isLoading = false,
     this.width,
+    this.padding,
   });
 
   @override
@@ -62,15 +64,21 @@ class CustomButton extends StatelessWidget {
             ],
           );
 
+    final defaultPadding = isSecondary
+        ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+        : const EdgeInsets.symmetric(horizontal: 18, vertical: 12);
+
+    final effectivePadding = padding ?? defaultPadding;
+
     final buttonWidget = isSecondary
         ? OutlinedButton(
             onPressed: isLoading ? null : onPressed,
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: effectivePadding,
             ),
             child: buttonChild,
           )
@@ -81,9 +89,9 @@ class CustomButton extends StatelessWidget {
               foregroundColor: fg,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: effectivePadding,
             ),
             child: buttonChild,
           );

@@ -11,6 +11,8 @@ import '../../../core/widgets/status_badge.dart';
 import '../controllers/purchases_controller.dart';
 import 'widgets/new_purchase_dialog.dart';
 import 'widgets/purchase_detail_dialog.dart';
+import 'widgets/print_purchase_bill_dialog.dart';
+import 'package:wholesale_app/modules/khatta/suppliers/views/widgets/add_supplier_dialog.dart';
 
 class PurchasesView extends GetView<PurchasesController> {
   const PurchasesView({super.key});
@@ -23,6 +25,19 @@ class PurchasesView extends GetView<PurchasesController> {
       subtitle:
           'Stock replenishment bills, textile mill orders, and vendor liabilities',
       headerActions: [
+        CustomButton(
+          text: 'Add Supplier',
+          icon: Icons.domain_add_outlined,
+          isSecondary: true,
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => const AddSupplierDialog(),
+            );
+          },
+        ),
+        const SizedBox(width: 10),
         CustomButton(
           text: AppStrings.newPurchase,
           icon: Icons.add_shopping_cart_rounded,
@@ -45,73 +60,406 @@ class PurchasesView extends GetView<PurchasesController> {
             children: [
               // Search & Filter Toolbar
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 10,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     // Search field
-                    Expanded(
-                      flex: 4,
-                      child: TextField(
-                        onChanged: (val) => controller.searchQuery.value = val,
-                        decoration: const InputDecoration(
-                          hintText: 'Search by Purchase # or Supplier name...',
-                          prefixIcon: Icon(
-                            Icons.search,
-                            size: 20,
-                            color: AppColors.textMuted,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 200, maxWidth: 280),
+                      child: SizedBox(
+                        height: 38,
+                        child: TextField(
+                          onChanged: (val) => controller.searchQuery.value = val,
+                          decoration: InputDecoration(
+                            hintText: 'Search bill or supplier...',
+                            hintStyle: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              size: 18,
+                              color: AppColors.textMuted,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                            filled: true,
+                            fillColor: AppColors.surface,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
                           ),
-                          isDense: true,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
 
-                    // Status Filter Tabs
-                    Expanded(
-                      flex: 6,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'Status Filter:',
+                    // Supplier Filter Dropdown
+                    PopupMenuButton<String>(
+                      tooltip: '',
+                      color: const Color(0xFF334155),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(color: Color(0xFF475569)),
+                      ),
+                      elevation: 8,
+                      offset: const Offset(0, 42),
+                      onSelected: (val) {
+                        controller.supplierFilter.value = val;
+                      },
+                      itemBuilder: (context) {
+                        return controller.availableSupplierNames.map((name) {
+                          final isSelected = controller.supplierFilter.value
+                                  .toLowerCase() ==
+                              name.toLowerCase();
+                          final label = name == 'All' ? 'Supplier: All' : name;
+                          return PopupMenuItem<String>(
+                            value: name,
+                            height: 38,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 18,
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList();
+                      },
+                      child: Container(
+                        height: 38,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: controller.supplierFilter.value != 'All'
+                                ? AppColors.primary
+                                : AppColors.border,
+                            width: controller.supplierFilter.value != 'All'
+                                ? 1.5
+                                : 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              controller.supplierFilter.value == 'All'
+                                  ? 'Supplier: All'
+                                  : 'Supplier: ${controller.supplierFilter.value}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: controller.supplierFilter.value != 'All'
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: controller.supplierFilter.value != 'All'
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Status Filter Dropdown
+                    PopupMenuButton<String>(
+                      tooltip: '',
+                      color: const Color(0xFF334155),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(color: Color(0xFF475569)),
+                      ),
+                      elevation: 8,
+                      offset: const Offset(0, 42),
+                      onSelected: (val) {
+                        controller.statusFilter.value = val;
+                      },
+                      itemBuilder: (context) {
+                        const statuses = [
+                          'All',
+                          'Paid',
+                          'Partially Paid',
+                          'Unpaid'
+                        ];
+                        return statuses.map((status) {
+                          final isSelected = controller.statusFilter.value
+                                      .toLowerCase() ==
+                                  status.toLowerCase() ||
+                              (status == 'Partially Paid' &&
+                                  controller.statusFilter.value
+                                          .toLowerCase() ==
+                                      'partial');
+                          final label =
+                              status == 'All' ? 'Status: All' : status;
+                          return PopupMenuItem<String>(
+                            value: status,
+                            height: 38,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 18,
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList();
+                      },
+                      child: Container(
+                        height: 38,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: controller.statusFilter.value != 'All'
+                                ? AppColors.primary
+                                : AppColors.border,
+                            width: controller.statusFilter.value != 'All'
+                                ? 1.5
+                                : 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              controller.statusFilter.value == 'All'
+                                  ? 'Status: All'
+                                  : 'Status: ${controller.statusFilter.value}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: controller.statusFilter.value != 'All'
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: controller.statusFilter.value != 'All'
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Custom Date Range filter
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Start Date
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate:
+                                  controller.startDate.value ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2035),
+                            );
+                            if (picked != null) {
+                              controller.startDate.value = picked;
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            height: 38,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: controller.startDate.value != null
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                                width:
+                                    controller.startDate.value != null ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  controller.startDate.value != null
+                                      ? DateFormatter.formatNumeric(
+                                          controller.startDate.value!,
+                                        )
+                                      : 'dd/mm/yyyy',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: controller.startDate.value != null
+                                        ? AppColors.textPrimary
+                                        : AppColors.textMuted,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            'to',
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.textSecondary,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          ...['All', 'Paid', 'Partial', 'Unpaid'].map((status) {
-                            final isSelected =
-                                controller.statusFilter.value.toLowerCase() ==
-                                status.toLowerCase();
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: ChoiceChip(
-                                label: Text(status),
-                                selected: isSelected,
-                                selectedColor: AppColors.primary,
-                                backgroundColor: AppColors.background,
-                                labelStyle: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppColors.textPrimary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                onSelected: (_) {
-                                  controller.statusFilter.value = status;
-                                },
-                              ),
+                        ),
+
+                        // End Date
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: controller.endDate.value ??
+                                  (controller.startDate.value ??
+                                      DateTime.now()),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2035),
                             );
-                          }),
+                            if (picked != null) {
+                              controller.endDate.value = picked;
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            height: 38,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: controller.endDate.value != null
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                                width: controller.endDate.value != null ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  controller.endDate.value != null
+                                      ? DateFormatter.formatNumeric(
+                                          controller.endDate.value!,
+                                        )
+                                      : 'dd/mm/yyyy',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: controller.endDate.value != null
+                                        ? AppColors.textPrimary
+                                        : AppColors.textMuted,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        if (controller.startDate.value != null ||
+                            controller.endDate.value != null) ...[
+                          const SizedBox(width: 4),
+                          IconButton(
+                            onPressed: controller.clearDateRange,
+                            icon: const Icon(Icons.close_rounded, size: 16),
+                            tooltip: 'Reset date filter',
+                            splashRadius: 16,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 28,
+                              minHeight: 28,
+                            ),
+                            color: AppColors.textSecondary,
+                          ),
                         ],
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -178,7 +526,7 @@ class PurchasesView extends GetView<PurchasesController> {
                             child: Text('Status', style: _headerStyle),
                           ),
                           SizedBox(
-                            width: 80,
+                            width: 130,
                             child: Text(
                               'Actions',
                               style: _headerStyle,
@@ -312,33 +660,60 @@ class PurchasesView extends GetView<PurchasesController> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 80,
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) =>
-                                              PurchaseDetailDialog(
-                                                purchase: purchase,
-                                              ),
-                                        );
-                                      },
-                                      style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
+                                  width: 130,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (ctx) =>
+                                                PurchaseDetailDialog(
+                                                  purchase: purchase,
+                                                ),
+                                          );
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 6,
+                                          ),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
+                                        child: const Text(
+                                          'View',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
                                       ),
-                                      child: const Text(
-                                        'View',
-                                        style: TextStyle(fontSize: 11),
+                                      const SizedBox(width: 6),
+                                      OutlinedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (ctx) =>
+                                                PrintPurchaseBillDialog(
+                                                  purchase: purchase,
+                                                ),
+                                          );
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 6,
+                                          ),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: const Text(
+                                          'Print',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
                               ],

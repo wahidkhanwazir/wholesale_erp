@@ -6,12 +6,13 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
-import '../../../suppliers/models/supplier_model.dart';
+import '../../../khatta/suppliers/models/supplier_model.dart';
 import '../../../inventory/models/product_model.dart';
 import '../../models/purchase_model.dart';
 import '../../../../shared/models/enums.dart';
 import '../../../inventory/controllers/inventory_controller.dart';
-import '../../../suppliers/controllers/suppliers_controller.dart';
+import '../../../khatta/suppliers/controllers/suppliers_controller.dart';
+import '../../../khatta/suppliers/views/widgets/add_supplier_dialog.dart';
 import '../../controllers/purchases_controller.dart';
 
 class NewPurchaseDialog extends StatefulWidget {
@@ -258,13 +259,49 @@ class _NewPurchaseDialogState extends State<NewPurchaseDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Select Supplier (Textile Mill)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Select Supplier (Textile Mill)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            final newSupp = await showDialog<SupplierModel>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (ctx) => const AddSupplierDialog(),
+                            );
+                            if (newSupp != null) {
+                              setState(() => _selectedSupplier = newSupp);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.add_circle_outline, size: 13, color: AppColors.primary),
+                                SizedBox(width: 4),
+                                Text(
+                                  '+ Add Supplier',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     Container(

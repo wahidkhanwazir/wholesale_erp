@@ -6,8 +6,8 @@ import '../models/dashboard_day_sales.dart';
 export '../models/dashboard_day_sales.dart';
 import '../../sales/controllers/sales_controller.dart';
 import '../../purchases/controllers/purchases_controller.dart';
-import '../../customers/controllers/customers_controller.dart';
-import '../../suppliers/controllers/suppliers_controller.dart';
+import '../../khatta/customers/controllers/customers_controller.dart';
+import '../../khatta/suppliers/controllers/suppliers_controller.dart';
 import '../../inventory/controllers/inventory_controller.dart';
 
 class DashboardController extends GetxController {
@@ -89,6 +89,9 @@ class DashboardController extends GetxController {
       final targetDate = now.subtract(Duration(days: i));
       final dayLabel = dayNames[targetDate.weekday - 1];
 
+      final dateLabel =
+          '${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+
       final matchingSales = allSales.where(
         (s) =>
             s.date.year == targetDate.year &&
@@ -100,6 +103,8 @@ class DashboardController extends GetxController {
       result.add(
         DashboardDaySales(
           dayLabel: dayLabel,
+          dateLabel: dateLabel,
+          date: targetDate,
           amount: total,
           count: matchingSales.length,
         ),
