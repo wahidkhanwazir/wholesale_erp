@@ -119,7 +119,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
 
                   const SizedBox(width: 12),
 
-                  // Action Buttons Top Right (Sleek compact sizing)
+                  // Action Buttons Top Right
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -128,7 +128,6 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                         CustomButton(
                           text: isCustomer ? KhataStrings.receivePayment : KhataStrings.paySupplier,
                           icon: Icons.payments_outlined,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -140,13 +139,13 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                             );
                           },
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 10),
 
                         // Secondary Action: + Sale / + Purchase
                         CustomButton(
-                          text: isCustomer ? '+ Sale' : '+ Purchase',
+                          text: isCustomer ? 'Sale' : 'Purchase',
+                          icon: Icons.add_rounded,
                           isSecondary: true,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -155,22 +154,22 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                             );
                           },
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 10),
 
                         // Statement Dropdown Menu (Print/PDF, Copy text, WhatsApp)
                         PopupMenuButton<String>(
                           tooltip: 'Statement Options',
-                          offset: const Offset(0, 38),
+                          offset: const Offset(0, 46),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: const BorderSide(color: AppColors.border),
                           ),
                           child: Container(
-                            height: 36,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: AppColors.border),
                             ),
                             child: const Row(
@@ -179,7 +178,7 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                                 Text(
                                   'Statement',
                                   style: TextStyle(
-                                    fontSize: 12.5,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
                                   ),
@@ -514,32 +513,84 @@ class _PartyDetailPanelState extends State<PartyDetailPanel> {
                   ),
                   const SizedBox(width: 8),
 
-                  // Entries Filter Dropdown
-                  Container(
-                    height: 38,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.border),
+                  // Entries Filter Dropdown matching Screenshot 1
+                  PopupMenuButton<String>(
+                    tooltip: 'Filter Entries',
+                    offset: const Offset(0, 42),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _typeFilter,
-                        isDense: true,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        items: ['Sab entries', 'Sales / Purchases', 'Payments', 'Opening'].map((f) {
-                          return DropdownMenuItem(value: f, child: Text(f));
-                        }).toList(),
-                        onChanged: (v) {
-                          if (v != null) setState(() => _typeFilter = v);
-                        },
+                    color: Colors.white,
+                    elevation: 5,
+                    shadowColor: Colors.black.withAlpha(30),
+                    child: Container(
+                      height: 38,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _typeFilter,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF1E293B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 18,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ],
                       ),
                     ),
+                    itemBuilder: (context) {
+                      return ['Sab entries', 'Invoices', 'Payments'].map((f) {
+                        bool isHovered = false;
+                        return PopupMenuItem<String>(
+                          value: f,
+                          padding: EdgeInsets.zero,
+                          height: 36,
+                          child: StatefulBuilder(
+                            builder: (context, setItemState) {
+                              final bgColor = isHovered ? const Color(0xFF1877F2) : Colors.transparent;
+                              final textColor = isHovered ? Colors.white : const Color(0xFF1E293B);
+
+                              return MouseRegion(
+                                onEnter: (_) => setItemState(() => isHovered = true),
+                                onExit: (_) => setItemState(() => isHovered = false),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 36,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  alignment: Alignment.centerLeft,
+                                  color: bgColor,
+                                  child: Text(
+                                    f,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: isHovered ? FontWeight.w600 : FontWeight.w500,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }).toList();
+                    },
+                    onSelected: (v) {
+                      setState(() => _typeFilter = v);
+                    },
                   ),
                 ],
               ),

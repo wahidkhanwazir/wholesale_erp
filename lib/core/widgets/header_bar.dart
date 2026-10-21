@@ -91,21 +91,21 @@ class HeaderBar extends StatelessWidget {
                 children: [
                   // Clean Date Badge Card matching Khata image theme
                   Container(
-                    height: 36,
+                    height: 42,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: 16,
+                      vertical: 10,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Center(
                       child: Text(
                         todayStr,
                         style: const TextStyle(
-                          fontSize: 12.5,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
                         ),

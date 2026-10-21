@@ -55,7 +55,7 @@ class _LedgerTableState extends State<LedgerTable> {
     }
 
     // 2. Filter by Type
-    if (widget.typeFilter == 'Sales / Purchases') {
+    if (widget.typeFilter == 'Invoices' || widget.typeFilter == 'Sales / Purchases') {
       list = list.where((tx) {
         final ref = tx.referenceType.toLowerCase();
         return ref.contains('sale') || ref.contains('inv') || ref.contains('purchase') || ref.contains('pur');

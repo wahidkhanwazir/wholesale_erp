@@ -170,12 +170,29 @@ class KhataView extends StatelessWidget {
             ),
           ),
 
-          // Header Action Buttons (Sleek compact sizing)
+          // Header Action Buttons
           headerActions: [
+            // Secondary Action Button (Add Customer / Add Supplier)
+            CustomButton(
+              text: config.addPartyBtnText.replaceAll('+ ', ''),
+              icon: Icons.person_add_alt_1_outlined,
+              isSecondary: true,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (ctx) => PartyFormDialog(
+                    type: controller.currentType.value,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 10),
+
             // Primary Action Button (Receive Payment / Pay Supplier)
             CustomButton(
               text: config.primaryBtnText,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              icon: Icons.add_rounded,
               onPressed: () {
                 showDialog(
                   context: context,
@@ -183,23 +200,6 @@ class KhataView extends StatelessWidget {
                   builder: (ctx) => PaymentDialog(
                     type: controller.currentType.value,
                     initialParty: controller.selectedParty,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(width: 6),
-
-            // Secondary Action Button (+ Add Customer / + Add Supplier)
-            CustomButton(
-              text: config.addPartyBtnText,
-              isSecondary: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (ctx) => PartyFormDialog(
-                    type: controller.currentType.value,
                   ),
                 );
               },
